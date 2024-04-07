@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 import re
 import nltk
+import exceptions
 from docx import Document
 import en_core_web_sm
 nlp = en_core_web_sm.load()
