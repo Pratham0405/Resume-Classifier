@@ -3,6 +3,7 @@ import pickle
 import re
 import nltk
 from docx import Document
+from PyPDF2 import PdfReader
 
 
 
@@ -37,6 +38,15 @@ def read_docx(file):
     for para in doc.paragraphs:
         full_text.append(para.text)
     return '\n'.join(full_text)
+
+
+def read_pdf(uploaded_file):
+    text = ""
+    pdf_reader = PdfReader(uploaded_file)
+    for page_num in range(len(pdf_reader.pages)):
+        page = pdf_reader.pages[page_num]
+        text += page.extract_text()
+    return text
 
 # web app
 def main():
