@@ -1,0 +1,16 @@
+typer
+click
+docx
+docx2txt
+matplotlib-venn
+nltk
+pandas
+pandas-visual-analysis
+pdfplumber
+PyPDF2
+scikit-learn
+spacy
+streamlit
+openpyxl
+Pillow
+pickle4
