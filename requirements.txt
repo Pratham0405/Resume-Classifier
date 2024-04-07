@@ -14,3 +14,4 @@ streamlit
 openpyxl
 Pillow
 pickle4
+python-docx 
