@@ -14,4 +14,10 @@ streamlit
 openpyxl
 Pillow
 pickle4
-python-docx 
+click
+docx2txt
+pdfplumber
+requests
+
+
+
