@@ -48,6 +48,8 @@ Dependencies:
 - NLTK
 - docx
 - PyPDF2
-  
+
+ 
+ [TRY HERE](https://resume-classifier.streamlit.app/)
   
 ### NOTE : Make sure to place the trained model (model.pickle) and TF-IDF vectorizer (tfidf.pickle) files in the same directory as the app.py file for the application to work properly.
