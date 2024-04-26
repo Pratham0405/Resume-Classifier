@@ -24,10 +24,18 @@ Copy code
 ```sh
 streamlit run app.py
 ```
+![rs1](https://github.com/Pratham0405/Resume-Classifier/assets/148319246/6f9328e6-9b26-48a9-8fe5-fd909dd9fd5e)
+
+
+
 
 Once the app is running, upload a resume file (supported formats: txt, pdf, docx).
 
-The app will process the uploaded resume and classify it into one of the predefined categories.
+The app will process the uploaded resume and classify it into one of the predefined categories and extract the skills from the resume.
+
+
+![rs2](https://github.com/Pratham0405/Resume-Classifier/assets/148319246/3d9009d9-e314-4822-9e3d-6b460a0d00f9)
+
 
 
 File Descriptions
@@ -40,6 +48,6 @@ Dependencies:
 - NLTK
 - docx
 - PyPDF2
-- Notes
   
-### Make sure to place the trained model (model.pickle) and TF-IDF vectorizer (tfidf.pickle) files in the same directory as the app.py file for the application to work properly.
+  
+### NOTE : Make sure to place the trained model (model.pickle) and TF-IDF vectorizer (tfidf.pickle) files in the same directory as the app.py file for the application to work properly.
