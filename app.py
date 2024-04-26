@@ -1,91 +1,172 @@
+# IMPORT LIBRARIES
+import pandas as pd
+import numpy as np
 import streamlit as st
-import pickle
+from io import BytesIO
+import click
+import docx2txt
+import pdfplumber
+from pickle import load
+import requests
 import re
+import os
+import sklearn
+import PyPDF2
 import nltk
-from docx import Document
-from PyPDF2 import PdfReader
-
-
-
+import pickle as pk
 nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('maxent_ne_chunker')
+nltk.download('words')
+nltk.download('wordnet')
 nltk.download('stopwords')
+nltk.download('omw-1.4')
+import en_core_web_sm
+nlp = en_core_web_sm.load()
+from nltk.tokenize import RegexpTokenizer
+from nltk import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
+stop=set(stopwords.words('english'))
+from spacy.matcher import Matcher
+matcher = Matcher(nlp.vocab)
+from sklearn.feature_extraction.text import TfidfVectorizer
 
+#----------------------------------------------------------------------------------------------------
 
-st.title('             RESUME CLASSIFICATION🤖     ')
+st.title('             RESUME CLASSIFICATION 🤖     ')
 st.markdown('<style>h1{color: Blue;}</style>', unsafe_allow_html=True)
 
+st.subheader('Hey, Welcome')
+
+# Display resume image
 st.subheader('Upload Your Resume 👇')
+resume_image_path = r'D:\EXCEL R\Resume_Project\pngwing.com.png'
+with open(resume_image_path, 'rb') as f:
+    resume_image = f.read()
+st.image(resume_image,  width=round(0.2 * 1000)) # Assuming the original width is 1000 pixels
 
-#loading models
-clf = pickle.load(open('model.pickle','rb'))
-tfidf = pickle.load(open('tfidf.pickle','rb'))
 
 
+
+
+# FUNCTIONS
+def extract_skills(resume_text):
+
+    nlp_text = nlp(resume_text)
+    noun_chunks = nlp_text.noun_chunks
+
+    tokens = [token.text for token in nlp_text if not token.is_stop] # removing stop words and implementing word tokenization
+            
     
-def clean_resume(resume_text):
-    clean_text = re.sub('http\S+\s*', ' ', resume_text)
-    clean_text = re.sub('RT|cc', ' ', clean_text)
-    clean_text = re.sub('#\S+', '', clean_text)
-    clean_text = re.sub('@\S+', '  ', clean_text)
-    clean_text = re.sub('[%s]' % re.escape("""!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""), ' ', clean_text)
-    clean_text = re.sub(r'[^\x00-\x7f]', r' ', clean_text)
-    clean_text = re.sub('\s+', ' ', clean_text)
-    return clean_text
-
-def read_docx(file):
-    doc = Document(file)
-    full_text = []
-    for para in doc.paragraphs:
-        full_text.append(para.text)
-    return '\n'.join(full_text)
-
-
-def read_pdf(uploaded_file):
-    text = ""
-    pdf_reader = PdfReader(uploaded_file)
-    for page_num in range(len(pdf_reader.pages)):
-        page = pdf_reader.pages[page_num]
-        text += page.extract_text()
-    return text
-
-# web app
-def main():
+    data = pd.read_csv(r"skills.csv") # reading the csv file
+            
     
-
-    uploaded_file = st.file_uploader(' ', type=['txt','pdf','docx'])
-
+    skills = list(data.columns.values)# extract values
+            
+    skillset = []
+            
     
-    if uploaded_file is not None:
-        try:
-            if uploaded_file.type == 'application/pdf':
-                resume_text = read_pdf(uploaded_file)
-            elif uploaded_file.type == 'text/plain':
-                resume_text = uploaded_file.getvalue().decode("utf-8")
-            elif uploaded_file.type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-                resume_text = read_docx(uploaded_file)
-        except UnicodeDecodeError:
-            # If UTF-8 decoding fails, try decoding with 'latin-1'
-            resume_text = uploaded_file.read().decode('latin-1')
+    for token in tokens:                 # check for one-grams (example: python)
+        if token.lower() in skills:
+            skillset.append(token)
+            
+   
+    for token in noun_chunks:            # check for bi-grams and tri-grams (example: machine learning)
+        token = token.text.lower().strip()
+        if token in skills:
+            skillset.append(token)
+            
+    return [i.capitalize() for i in set([i.lower() for i in skillset])]
 
-        cleaned_resume = clean_resume(resume_text)
-        input_features = tfidf.transform([cleaned_resume])
-        prediction_id = clf.predict(input_features)[0]
+def getText(filename):
+      
+    # Create empty string 
+    fullText = ''
+    if filename.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        doc = docx2txt.process(filename)
         
+        for para in doc:
+            fullText = fullText + para
+            
+           
+    else:  
+        with pdfplumber.open(filename) as pdf_file:
+            number_of_pages = len(pdf_file.pages)
+            page_content = ''
+            for page in pdf_file.pages:
+                page_content += page.extract_text()
+             
+        fullText = page_content
+         
+    return (fullText)
 
-        # Map category ID to category name
-        category_mapping = {
-            0: "PeopleSoft",
-            1: "ReactJS Developer",
-            2: "SQL Developer",
-            3: "Workday",
-        }
 
-        category_name = category_mapping.get(prediction_id, "Unknown")
+def display(doc_file):
+    resume = []
+    if doc_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        resume.append(docx2txt.process(doc_file))
 
-        st.write(f'### Predicted Category : {category_name}')
-       
+    else:
+        with pdfplumber.open(doc_file) as pdf:
+            pages=pdf.pages[0]
+            resume.append(pages.extract_text())
+            
+    return resume
 
 
-# python main
-if __name__ == "__main__":
-    main() 
+def preprocess(sentence):
+    sentence=str(sentence)
+    sentence = sentence.lower()
+    sentence=sentence.replace('{html}',"") 
+    cleanr = re.compile('<.*?>')
+    cleantext = re.sub(cleanr, '', sentence)
+    rem_url=re.sub(r'http\S+', '',cleantext)
+    rem_num = re.sub('[0-9]+', '', rem_url)
+    tokenizer = RegexpTokenizer(r'\w+')
+    tokens = tokenizer.tokenize(rem_num)  
+    filtered_words = [w for w in tokens if len(w) > 2 if not w in stopwords.words('english')]
+    lemmatizer = WordNetLemmatizer()
+    lemma_words=[lemmatizer.lemmatize(w) for w in filtered_words]
+    return " ".join(lemma_words) 
+
+file_type=pd.DataFrame([], columns=['Uploaded File',  'Predicted Profile','Skills',])
+filename = []
+predicted = []
+skills = []
+
+#-------------------------------------------------------------------------------------------------
+# MAIN CODE
+import pickle 
+model = pickle.load(open('model.pickle','rb'))
+Vectorizer = pickle.load(open('tfidf.pickle','rb'))
+
+
+
+upload_file = st.file_uploader('Upload Your Resumes',
+                                type= ['docx','pdf'],accept_multiple_files=True)
+  
+for doc_file in upload_file:
+    if doc_file is not None:
+        filename.append(doc_file.name)
+        cleaned=preprocess(display(doc_file))
+        prediction = model.predict(Vectorizer.transform([cleaned]))[0]
+        predicted.append(prediction)
+        extText = getText(doc_file)
+        skills.append(extract_skills(extText))
+
+
+# Define a dictionary to map numeric labels to categories
+label_mapping = {0: "PeopleSoft", 1: "ReactJS Developer",2: "SQL Developer", 3: "Workday"}
+# Update the 'predicted' list with category labels instead of numeric labels
+predicted_labels = [label_mapping[label] for label in predicted]
+
+
+        
+if len(predicted) > 0:
+    file_type['Uploaded File'] = filename
+    file_type['Skills'] = skills
+    file_type['Predicted Profile'] = predicted_labels
+    st.table(file_type.style.format())
+
+
