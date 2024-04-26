@@ -15,8 +15,11 @@ import PyPDF2
 import nltk
 import pickle as pk
 
-from spacy import en_core_web_sm
-nlp = en_core_web_sm.load()
+
+import spacy 
+
+nlp = spacy.load("en_core_web_sm")
+
 from nltk.tokenize import RegexpTokenizer
 from nltk import word_tokenize
 from nltk.stem import WordNetLemmatizer
