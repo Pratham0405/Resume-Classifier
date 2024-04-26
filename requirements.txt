@@ -18,6 +18,5 @@ click
 docx2txt
 pdfplumber
 requests
-en_core_web_sm
 
 
