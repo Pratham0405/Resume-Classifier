@@ -14,13 +14,7 @@ import sklearn
 import PyPDF2
 import nltk
 import pickle as pk
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('maxent_ne_chunker')
-nltk.download('words')
-nltk.download('wordnet')
-nltk.download('stopwords')
-nltk.download('omw-1.4')
+
 import en_core_web_sm
 nlp = en_core_web_sm.load()
 from nltk.tokenize import RegexpTokenizer
