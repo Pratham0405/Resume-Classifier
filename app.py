@@ -40,7 +40,7 @@ st.subheader('Hey, Welcome')
 
 # Display resume image
 st.subheader('Upload Your Resume 👇')
-resume_image_path = r'D:\EXCEL R\Resume_Project\pngwing.com.png'
+resume_image_path = r'pngwing.com.png'
 with open(resume_image_path, 'rb') as f:
     resume_image = f.read()
 st.image(resume_image,  width=round(0.2 * 1000)) # Assuming the original width is 1000 pixels
