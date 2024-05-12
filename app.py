@@ -16,7 +16,8 @@ import nltk
 import pickle as pk
 
 
-import spacy 
+import spacy
+import en_core_web_sm
 
 nlp = spacy.load("en_core_web_sm")
 
