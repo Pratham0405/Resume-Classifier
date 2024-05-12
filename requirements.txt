@@ -9,7 +9,7 @@ pandas-visual-analysis
 pdfplumber
 PyPDF2
 scikit-learn
-spacy
+spacy>=2.2.0,<3.0.0
 streamlit
 openpyxl
 Pillow
