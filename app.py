@@ -18,8 +18,7 @@ import pickle as pk
 
 import spacy
 import en_core_web_sm
-
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load('en_core_web_sm')
 
 from nltk.tokenize import RegexpTokenizer
 from nltk import word_tokenize
