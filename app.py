@@ -15,7 +15,8 @@ import PyPDF2
 import nltk
 import pickle as pk
 from nltk.corpus import stopwords as nltk_stopwords
-
+import nltk
+nltk.download("stopwords")
 import spacy
 import en_core_web_sm
 nlp = spacy.load('en_core_web_sm')
