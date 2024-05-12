@@ -14,7 +14,7 @@ import sklearn
 import PyPDF2
 import nltk
 import pickle as pk
-
+from nltk.corpus import stopwords as nltk_stopwords
 
 import spacy
 import en_core_web_sm
@@ -24,7 +24,8 @@ from nltk.tokenize import RegexpTokenizer
 from nltk import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
-stop=set(stopwords.words('english'))
+stop=set(nltk_stopwords.words('english'))
+
 from spacy.matcher import Matcher
 matcher = Matcher(nlp.vocab)
 from sklearn.feature_extraction.text import TfidfVectorizer
